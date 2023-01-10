@@ -38,3 +38,6 @@
 	-I am thankful to Mr. Uema2 who is having use permitted to public
 	 presentation of UnZip.DLL which is the outstanding archiver,
 	 and a software developer. 
+
+Precompiled Binaries
+Download from: https://www.hpcfactor.com/scl/1925/M._Toda/Unofficial_UnZip.dll_for_Windows_CE/version_0.93.01?page=details
