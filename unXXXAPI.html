@@ -1,0 +1,404 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="ja" dir="ltr">
+<head>
+  <title>The un(lha|zip).dll for WindowsCE API Document</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=Shift-JIS">
+</head>
+<style type="text/css">
+<!--
+h1, h2{
+  font-size:medium;
+  font-weight:bold;
+  border-style:solid;
+  border-width:0pt 0pt 1pt 1pt;
+  border-color:#000066;
+  color:#333333;
+}　
+h1{
+  color:#000033;
+  background-color:#ededed;
+  margin:0;
+}
+h2{
+  font-size:small;
+}
+h3{
+  font-weight:normal;
+  color:#666666;
+}
+.statement{
+  margin: 0.2em 0 0.2em 2em;
+  line-height: 1.4em;
+  font-weight:normal;
+  color:#666666;
+}
+-->
+</style>
+<body>
+
+<h1>
+  unlha.dll,
+  unzip.dll for WindowsCE
+    開発者用リリース解説 - API編 -
+</h1>
+
+<h2>このファイルの内容</h2>
+<p class="statement">
+  unXXX.dll に共通する API と、コマンドに関する解説です。
+</p>
+
+<h2>はじめに</h2>
+<p class="statement">
+  &quot;API&quot; とは、Unlha(), UnlhaCheckArchive() などの
+  関数を意味します。<br>
+  &quot;コマンド&quot; とは、Unlha() や UnZip() を使用する際、
+  それらに命令を送るための文字列を意味します。<br>
+  以下に、今バージョンで実装されている API について、
+  解説しています。<br>
+  まだ極度に少ないですが・・・徐々に増やしていきます。徐々に。
+</p>
+<p class="statement">
+  unlha.dll および unzip.dll はスレッドセーフでは
+  <strong>ありません</strong>。<br>
+  呼び出し側でうまいこと調整してやる必要があります。
+</p>
+
+<hr>
+<a href="#API">API の解説</a><br>
+<ul class="statement">
+  <li><a href="#API1">Unlha, UnZip</a></li>
+  <li><a href="#API2">UnlhaGetVersion, UnZipGetVersion</a></li>
+  <li><a href="#API3">UnlhaCheckArchive, UnZipCheckArchive</a></li>
+  <li><a href="#API4">UnlhaGetRunning, UnZipGetRunning</a></li>
+  <li><a href="#API5">UnlhaExtractMem, UnZipExtractMem</a></li>
+</ul>
+<a href="#COMMAND">コマンドの解説</a>
+<hr>
+
+<h2 id="API">API</h2>
+
+<pre class="statement">
+---------------------------------------------------
+<strong id="#API1">int Unlha(const HWND hWnd,LPCTSTR szCmdLine,
+          LPTSTR szOutput,const DWORD wSize)
+int UnZip(const HWND hWnd,LPCTSTR szCmdLine,
+          LPTSTR szOutput,const DWORD wSize)</strong>
+---------------------------------------------------
+引数：
+      const HWND hWnd   - unXXX.dll を呼び出すアプリケーションの
+                          ウィンドウハンドル。
+      LPCTSTR szCmdLine - UnXXX に渡すコマンド文字列。
+                          コマンドの詳細については下の
+                          <a href="#COMMAND">コマンド</a>参照。
+      LPTSTR szOutput   - UnXXX が結果を返すためのバッファ。
+      DWORD wSize       - szOutput のサイズ。
+
+戻り値：
+           0 - 正常終了時
+    それ以外 - 異常終了時。異常終了の具体的内容については
+               szOutput の中身を確認のこと。
+
+解説：
+     今のところ、圧縮/展開は、この関数を用いてのみ可能です。
+     szCmdLine の書式は、下の <a href="#COMMAND">コマンド</a> で
+     解説しています。
+
+---------------------------------------------------
+<strong id="#API2">WORD UnlhaGetVersion(void)
+WORD UnZipGetVersion(void)</strong>
+---------------------------------------------------
+
+引数：なし
+
+戻り値:
+unXXX.dll のバージョンを示す WORD 値。
+戻り値/100 が、実際のバージョンに相当します。
+
+        ex.
+          1 → ver 0.01
+        105 → ver 1.05
+
+解説：バージョンの差異による不具合を回避するためなどに
+　　　必要と思われます。たぶん。
+
+---------------------------------------------------
+<strong id="#API3">BOOL UnlhaCheckArchive(LPCTSTR szFileName,
+                       const int iMode)
+BOOL UnZipCheckArchive(LPCTSTR szFileName,
+                       const int iMode)</strong>
+---------------------------------------------------
+引数：LPCTSTR szFileName - アーカイブファイル名。
+      const int iMode    - チェックモード。
+                           このバージョンでは無視されます。
+
+戻り値：TRUE - 正しい書庫であると判定されたとき。
+        FALSE - それ以外の異常終了時。
+
+解説：指定ファイルが書庫として正しいかどうかを返します。
+      UnXXX API で、"t" コマンドを使ったときと同じ動作です。
+
+---------------------------------------------------
+<strong id="#API4">BOOL UnlhaGetRunning(void)
+BOOL UnZipGetRunning(void)</strong>
+---------------------------------------------------
+引数：なし
+
+戻り値：TRUE  - DLL は処理を実行中
+        FALSE - DLL は処理を行っていない
+
+解説：Unlha() や UnZip() を呼ぶ前に、この関数を使って、
+      DLL が他の処理を実行中でないことを確認してください。
+
+---------------------------------------------------
+<strong id="#API5">int UnlhaExtractMem(const HWND hwnd, LPCTSTR szCmdLine,
+        LPBYTE szBuffer, const DWORD dwSize, time_t *lpTime,
+        LPWORD lpwAttr, LPDWORD lpdwWriteSize)
+int UnZipExtractMem(const HWND hwnd, LPCTSTR szCmdLine,
+        LPBYTE szBuffer, const DWORD dwSize, time_t *lpTime,
+        LPWORD lpwAttr, LPDWORD lpdwWriteSize)</strong>
+---------------------------------------------------
+引数：
+    const HWND hwnd  - UNLHA.DLL を呼び出すアプリのウィンドウハンドル。
+                       UNLHA.DLL は実行時にこのウィンドウに対して
+                       EnableWindow() を実行し、ウィンドウの動作を抑制します。
+                       指定する必要のない場合は NULL を渡します。
+    LPCTSTR szCmdLine- UNLHA32.DLL に渡すコマンドの文字列。
+                       Unlha() と同じものが指定できますが，
+                       コマンドは無視されます。
+    LPBYTE szBuffer  - 展開イメージを格納するバッファ。
+                       ここで指定するバッファについては，
+                       dwSize で示されるサイズが保証されている
+                       必要があります。
+    const DWORD dwSize バッファのサイズ。
+                       UNLHA32.DLL が返す結果のサイズより指定されたサイズが
+                       小さい場合は指定サイズまで出力されます。
+    time_t *lpTime   - 展開されたファイルの UTC でのタイムスタンプを得ます。
+                       必要ない場合は NULL を指定します。
+                       (このバージョンでは、まだ使用できません)
+    LPWORD lpwAttr   - 展開されたファイルの属性を得ます。 
+                       必要ない場合は NULL を指定します。
+                       (このバージョンでは、まだ使用できません)
+    LPDWORD lpdwWriteSize
+                       展開の結果書き込まれたサイズを得ます。  
+                       必要ない場合は NULL を指定します。
+
+戻り値：      0 - 正常終了時
+       それ以外 - 異常終了時。異常終了の具体的内容については
+                  szOutput の中身を確認のこと。
+
+注意：UnZipExtractMem は未実装です。
+
+解説：szCmdLine には、"e test.lzh test.txt" の要領で、
+      2 番目に書庫名、3 番目にメモリ上に解凍したい、書庫内の
+      ファイル名を指定します。1 番目のコマンドは無視されますが、
+      なにかしらついていないとエラーになります。
+      また、4 番目以降にファイルを指定しても無視されます。
+
+</pre>
+
+<h2 id="COMMAND">コマンド</h2>
+<pre class="statement">
+コマンドの書式は以下の通りです。
+
+    [&lt;command&gt;] [[-&lt;switch&gt;[+|-|0|1|2]]...] &lt;archive_file_name&gt;[.LZH]
+      [[&lt;base_directory_name&gt;\] [&lt;path_name&gt;|&lt;wild_name&gt;]...]]...
+
+      command             : 命令
+      switch              : スイッチ
+      archive_file_name   : 書庫名
+      base_directory_name : 基準ディレクトリ
+      path_name           : パス (ファイル) 名
+      wild_name           : ワイルドカード
+
+path_name に半角スペースが含まれる場合は、
+前後をダブルクォート &quot; &quot; で囲んでください。
+(もちろん、半角スペースがないときに、&quot; &quot; で囲んでも
+正しく認識されます)
+
+   ex. &quot;a \test.lzh &quot;\My Documents\test.txt&quot;&quot;
+
+
+<strong>a: 書庫にファイルを追加</strong>
+ 
+   ファイルを圧縮して書庫に格納します。2 番目の引数に出力先の
+   ファイル名。3 番目には、基準ディレクトリを指定(必要時のみ)。
+   4 番目以降に圧縮したいファイルを指定。
+   ワイルドカードも中途半端に使えます。
+   基準ディレクトリの詳細は、以下の<a href="#BASEDIR">基準ディレクトリについて</a>
+   を参考にしてください。
+   
+   ex.  - 基準ディレクトリを使わない例 -
+        &quot;a \test.lzh \test\*.*&quot;
+          → test.lzh という名前で、\test ディレクトリ以下のファイルを
+                  圧縮する。
+        &quot;a \test2 \test\*.dll&quot;
+          → test2.lzh という名前で、\test ディレクトリの、拡張子が
+             .dll のファイルを圧縮する。
+
+
+<strong>e もしくは x : 書庫内のファイルを展開</strong>
+
+   書庫を展開します。2 番目の引数に展開したい書庫名、3 番目の引数に
+   解凍先のディレクトリを指定します。
+   4 番目以降に、書庫内の格納ファイル名を指定すると、書庫から
+   そのファイルだけを抽出することができます。
+   ただし、解凍先のディレクトリが存在しない場合、DLL はディレクトリを
+   作ろうとせず、エラーとして終了してしまいます。
+   よって、ソフト側であらかじめ作っておいてください。
+   DLL 内部では、展開処理の前に、書庫ファイルの検査を行っています。
+
+   ex.  &quot;e test.lzh \test\&quot;
+          → test.lzh という書庫を、\test フォルダ以下に展開
+        &quot;e test.lzh \test\ test.txt&quot;
+          → test.lzh という書庫に格納されたファイルのうち、
+             test.txt のみを \test フォルダ以下に展開
+
+
+<strong>d: 書庫からファイルを削除</strong>
+
+   書庫から、指定されたファイルを削除します。
+   ただし特殊な例として、書庫に、ファイルが一つだけ
+   格納されている状態で、そのファイルを消すために 
+   d コマンドを使った場合、書庫ファイルそのものが削除されます。
+
+   ex.  &quot;d \test.lzh test.txt&quot;
+          → test.lzh に格納されたファイルの中から、
+             test.txt を削除する。
+
+
+<strong>t: 書庫の完全性検査</strong>
+
+   書庫が正しく展開可能かどうかをチェックします。
+   lzh 書庫については ヘッダチェック、crc 比較などを行います。
+   zip 書庫については、ヘッダチェックのみ行います。
+   (それじゃあ完全性検査と言えないやんけ)
+
+   ex.  &quot;t \test.lzh&quot;
+          → test.lzh の完全性検査をします。
+
+
+<strong>l: 書庫の内容の一覧出力</strong>
+
+   書庫の中身の一覧を、出力バッファに出力します。
+   フォーマットは以下の通り。
+
+　　  CRC    TYPE   SIZE    RATIO       STAMP             NAME
+　　-------- ---- -------- ------ ------------------- ----------------------
+　　00000000 STOR        0 ****** 2002-03-06  7:06:38 test/test2/
+　　E3C740A7 DEFL    23444  32.5% 2002-03-03  9:21:12 test/test2/test2.txt
+　　17F811C2 DEFL    12079  29.3% 2002-03-03  9:20:52 test/test.txt
+　　-------- ---- -------- ------ ------------------- ----------------------
+　　  Total          35523                     3files
+
+   unlha.dll と unzip.dll とでは、TYPE に入る語句が異なります。
+
+   LHA については、&quot;lh0&quot; &quot;lh5&quot; など、前後のハイフンを
+   省略した形で表示します。
+
+   ZIP については、
+     STOR   - Store
+     DEFL   - Deflate
+     SRNK   - Shrunk
+     RED1~4 - Reduce 1~4
+     IMPL   - Implode
+
+   を示しています。
+
+
+<strong>q: サイレントモード</strong>
+
+　　このオプションを &quot;a&quot; や &quot;e&quot; などとあわせて指定すると、
+    圧縮/展開の際に、状況表示ダイアログを出さずに処理を実行します。
+
+    ex.  &quot;eq \test.lzh&quot;
+           → ダイアログを出さずに、test.lzh を展開します。
+
+
+<strong>f: 強制上書き</strong>
+
+    解凍の際、ファイルを上書きしようとすると、それを確認するための
+    ダイアログが表示されます( &quot;q&quot; オプションが指定されていても
+    このダイアログは出ます)。選択肢は4つ。「はい」は上書き解凍、
+    「いいえ」は上書きせずに次のファイルの処理継続。「すべてはい」は
+    その後のすべてのファイルを上書き解凍、「スキップ」は上書きせず、
+    その後の処理を一切せずに終了します。
+
+　　このオプションを &quot;e&quot; とあわせて指定すると、このダイアログを出さず、
+    すべてが上書き解凍されます。
+
+    ex.  &quot;ef \test.lzh&quot;
+           → test.lzh を展開。既存のファイルは全て上書き。
+
+
+<strong>o: 圧縮アルゴリズムの指定</strong>
+    (0|5|6|7) - Unlha
+    (0 ～ 9)  - UnZip
+
+　　このオプションを &quot;a&quot; とあわせて指定すると、
+    圧縮の際の圧縮アルゴリズムを指定できます。
+
+  LHA:
+    指定できるのは 0(無圧縮), 5(-lh5-), 6(-lh6-), 7(-lh7-)
+    です。省略すると、-lh7- で圧縮されます。
+
+  ZIP:
+    0 から 9 までを指定できます。0 は無圧縮。
+    1 は速度最優先・圧縮率最小、9 は圧縮率最優先・速度最遅 です。
+    省略すると、6 で圧縮されます。
+
+    ex.  &quot;ao5 test.lzh test.txt&quot;
+           → test.txt を -lh5- 形式で圧縮します。
+
+
+<strong>b: バックアップファイルの作成</strong>
+
+　　このオプションを &quot;a&quot; や &quot;d&quot; とあわせて指定すると、
+    書庫に追加処理を行う以前の状態の書庫ファイルを、
+    .bak という拡張子で保存します。
+
+    ex.  &quot;ab test.lzh test.txt&quot;
+           → test.txt を test.lzh に追加する。
+              test.lzh がすでに存在していたら、バックアップを
+　　　　　　　test.bak として保存する。
+
+</pre>
+
+<h2 id="BASEDIR">基準ディレクトリについて</h2>
+
+<pre class="statement">
+  WindowsCE には、カレントディレクトリの概念がないため、全ての
+パス指定を絶対ディレクトリで行うことになります。 
+  そのため、圧縮/解凍のとき、基準ディレクトリという概念を使って、
+相対パスの代替とします。
+  基準ディレクトリを指定するときは、かならず最後を \ にしてください。
+そうしないと、ファイルが指定されているものと誤認識します。
+
+
+  たとえば、圧縮の場合、
+    a \Dir1\Dir2\test.lzh \Dir1\ \Dir1\Dir2\test.txt
+  と、基準ディレクトリを指定( \Dir1\ )したとき、Dir2 と、Dir2 以下の
+  指定されたファイルが書庫に格納されます。
+
+  仮に、これを
+    a \Dir1\Dir2\test.lzh \Dir1\Dir2\test.txt
+  と、基準ディレクトリを指定しなかった場合、Dir1 から書庫に
+  格納されることになります。
+
+
+  解凍の場合は、
+    e &quot;\Storage Card\test.lzh&quot; \temp\
+  と指定すると、test.lzh が \temp 以下に解凍されます。
+  \temp\ が基準ディレクトリの指定にあたります。
+</pre>
+
+<h2 id="ASIDE">余談</h2>
+<p class="statement">
+  unzip.dll に書庫の追加と削除の機能をやっとこさつけた。
+  ZIP フォーマットはやっと掴めたかもしれない。
+  あとは LHA の level3 header か？
+</p>
+<p class="statement">
+  あと、UNLHA32.DLL のドキュメントで問題に挙げられている
+  ファイルスタンプの、秒の切り捨て問題について、UNLHA.DLL4CE は
+  未対処。
+</p>

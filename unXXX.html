@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="ja" dir="ltr">
+<head>
+  <title>The un(lha|zip).dll for WindowsCE Document</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=Shift-JIS">
+</head>
+<style type="text/css">
+<!--
+h1, h2{
+  font-size:medium;
+  font-weight:bold;
+  border-style:solid;
+  border-width:0pt 0pt 1pt 1pt;
+  border-color:#000066;
+  color:#333333;
+}　
+h1{
+  color:#000033;
+  background-color:#ededed;
+  margin:0;
+}
+h2{
+  font-size:small;
+}
+h3{
+  font-weight:normal;
+  color:#666666;
+}
+.statement{
+  margin: 0.2em 0 0.2em 2em;
+  line-height: 1.4em;
+  font-weight:normal;
+  color:#666666;
+}
+-->
+</style>
+<body>
+
+<h1>
+  unlha.dll,
+  unzip.dll for WindowsCE
+</h1>
+
+
+<h2>はじめに</h2>
+<p class="statement">
+  ファイルをダウンロードいただきありがとうございます。<br>
+  この DLL は、LHA や ZIP などの書庫に関する知識のない
+  ソフト作者でも、それらを扱った WindowsCE/PocketPC ソフトを
+  作成できるようにと考えて作られたものです。<br>
+  このDLLを使用することに関する制限事項は一切ありません。<br>
+  また、この DLL についての全てのソースコードが公開されています。<br>
+  間違い指摘・バグ報告など、下記のサポート宛までお願いいたします。<br>
+</p>
+
+<h2>このアーカイブの中身</h2>
+<ul class="statement">
+  \DLL 以下<br>
+  <ul>
+     各CPU用の DLL と LIB が入っています。
+	 HPC Pro 用が CE2.11 用、
+	 PocketPC 用が CE3.0 用だと思ってください。
+  </ul>
+  src.tar.bz2<br>
+  <ul>
+     この DLL の全ソースコードです。
+     スタティックリンクして使いたい方は、このフォルダ内の
+     unlha(zip).h を使ってください。
+  </ul>
+  \unXXX.txt<br>
+  <ul>
+    このファイルです。unlha と unzip で共通です。
+  </ul>
+  \unXXXAPI.txt<br>
+  <ul>
+    DLL で用意されている API と呼ばれる関数群に関する説明です。
+    unlha も unzip も一緒くたに説明しています(手抜き)。
+  </ul>
+</ul>
+
+<h2>インストール</h2>
+<p class="statement">
+  \Windows フォルダへ DLL をコピー。完了。<br>
+  \ﾒﾓﾘ ｶｰﾄﾞ でも、\ (ルート) でもいいらしい。よく知らんが。<br>
+  アンインストールは、当該ファイルを削除で OK。<br>
+</p>
+
+<h2>元ネタ</h2>
+<ul class="statement">
+  <li>unlha.dll は LHa version 1.14f for Win32 をベースに、
+    LHa for Unix version 1.14i 相当のパッチが当てられています。</li>
+  <li>unzip.dll の圧縮部は、zlib\contrib の minizip が
+      ベースになっています。</li>
+  <li>unzip.dll の展開部は、XacRett の zip 展開がベースになっています。</li>
+  <li>unzip.dll は zlib を使用しています。<br>
+      (C) 1995-2002 Jean-loup Gailly and Mark Adler</li>
+  <li>zlib for WindowsCE は足立 和雄氏による成果物です。</li>
+  <li>また、このドキュメントは UNLHA32.DLL に付属のドキュメントを
+    参考にしています。</li>
+</ul>
+<p class="statement">
+　　元ネタにさせていただいている方々、本当に
+  　ありがとうございます。
+</p>
+
+<h2>制限</h2>
+<p class="statement">
+  - unlha.dll -
+</p>
+<ul class="statement">
+  特になし。
+</ul>
+<p class="statement">
+  - unzip.dll -
+</p>
+<ul class="statement">
+  パスワード書庫は作成できません<br>
+  (なんか、米国の暗号技術輸出規制に引っかかるらしいぞ)
+</ul>
+
+<h2>開発者向け使用方法</h2>
+<p class="statement">
+  開発者向けの、API やコマンドに関する解説は
+  <a href="unXXXAPI.html">こちら</a>
+  。<br>
+  この DLL を使用したソフトウェアを書きたい場合、スタティックリンクと
+  ダイナミックリンクの 2 種類の方法があります。<br>
+  前者は unlha.lib をリンクしてビルドする方法、後者は LoadLibrary と
+  GetProcAddress を使う方法です。<br>
+  後者のほうが多少コーディングは面倒ですが、DLL がインストールされて
+  いない場合のことを考えて、ダイナミックリンクで使用することを
+  お勧めします。<br>
+  具体的方法については、src\sample\sample.cpp が参考になるかと
+  思います。
+</p>
+
+<h2>配布条件とか</h2>
+<ul class="statement">
+  <li>
+    基本的にソースコードは全て開示しますんで、元ソースの
+    使用条件に反していることはないとは思いますが・・・
+    (ん？でも LHa for UNIX のドキュメントも加えなきゃダメか？
+    でも man 形式のドキュメントを Win 上でどうやって読めっちゅーねん)
+  </li><li>
+    私が書いた部分について、著作権だのどうこう言うつもりは
+    ありません。参考になさるならお好きにどうぞ。
+    ただ、この DLL に関して言えば、無用な分岐や亜種の乱立は
+    ユーザーの混乱を招くだけです。よって改良などなさった場合は、
+    できるだけ作者に報告いただきますようお願い申し上げます。
+  </li><li>
+    このソフトの不具合に関する報告を、元ネタの作者に
+    行わないでください。
+  </li><li>
+    自分の責任において使用して下さい。障害等が生じても責任は
+    負いません。
+  </li>
+</ul>
+
+<h2>サポート</h2>
+<p class="statement">
+  URI : http://uema2.cjb.net/<br>
+  mail: mail@uema2.cjb.net
+</p>
